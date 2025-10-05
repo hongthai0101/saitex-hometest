@@ -46,6 +46,17 @@ export default function ChatbotPage() {
     scrollToBottom()
   }, [messages, streamingContent])
 
+  // Cleanup streaming content when streaming stops
+  useEffect(() => {
+    if (!isStreaming && streamingContent) {
+      // Clear after a brief delay to ensure message is rendered
+      const timer = setTimeout(() => {
+        clearStreamingContent()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isStreaming, streamingContent, clearStreamingContent])
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
@@ -144,7 +155,6 @@ export default function ChatbotPage() {
     if (!user || isStreaming) return
 
     const conversationId = currentConversation?.id
-    const messageCountBeforeSend = messages.length
 
     // Optimistically add user message to UI
     const tempUserMessage: Message = {
@@ -193,6 +203,7 @@ export default function ChatbotPage() {
             actualConversationId = chunk.metadata.conversationId
           }
 
+          // Create the final message
           const tempAssistantMessage: Message = {
             id: 'temp-assistant-' + Date.now(),
             conversationId: actualConversationId || conversationId || 'temp',
@@ -209,8 +220,15 @@ export default function ChatbotPage() {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
+
+          // Add message to the messages array FIRST
           addMessage(tempAssistantMessage)
-          clearStreamingContent()
+
+          // Stop streaming - the message is now in the messages array
+          // The useEffect will handle clearing streamingContent
+          setIsStreaming(false)
+          setIsThinking(false)
+
           break
         }
       }
@@ -225,26 +243,19 @@ export default function ChatbotPage() {
         const convs = await chatService.getConversations(user.id)
         setConversations(convs)
 
-        const expectedMessageCount = messageCountBeforeSend + 2
-
-        // Silent background sync
-        setTimeout(async () => {
-          try {
-            const backendMessages = await chatService.getMessages(finalConversationId)
-            if (backendMessages.length >= expectedMessageCount) {
-              setMessages(backendMessages)
-            }
-          } catch (error) {
-            // Keep temp messages on sync failure
-          }
-        }, 2000)
+        // REMOVED: Background sync that was causing messages to disappear
+        // Messages will sync when user switches conversations or refreshes page
+        // This keeps the streamed content visible immediately after sending
       }
     } catch (error: any) {
       if (error?.name === 'AbortError') {
+        clearStreamingContent()
+        setIsStreaming(false)
+        setIsThinking(false)
         return
       }
       alert('Failed to send message: ' + (error?.message || 'Unknown error'))
-    } finally {
+      clearStreamingContent()
       setIsStreaming(false)
       setIsThinking(false)
     }
@@ -300,6 +311,7 @@ export default function ChatbotPage() {
               ))}
               {isStreaming && (
                 <ChatMessage
+                  key="streaming-message"
                   role={"assistant" as MessageRole}
                   content={streamingContent}
                   isStreaming={!isThinking}
