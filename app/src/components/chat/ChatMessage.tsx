@@ -22,7 +22,7 @@ export function ChatMessage({
   const isUser = role === 'user'
 
   return (
-    <div className={cn('flex gap-3 px-4 py-6', isUser ? 'flex-row-reverse' : 'flex-row', !isUser && 'bg-gray-50')}>
+    <div className={cn('flex gap-3 px-4 py-6 max-w-full', isUser ? 'flex-row-reverse' : 'flex-row', !isUser && 'bg-gray-50')}>
       <div
         className={cn(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
@@ -32,14 +32,14 @@ export function ChatMessage({
         {isUser ? <User size={18} /> : <Bot size={18} />}
       </div>
 
-      <div className={cn('flex-1 space-y-2', isUser && 'flex flex-col items-end')}>
+      <div className={cn('flex-1 space-y-2 min-w-0 max-w-full', isUser && 'flex flex-col items-end')}>
         {isThinking ? (
           <div className="flex items-center gap-2 py-2">
             <Loader2 size={16} className="animate-spin text-primary" />
             <span className="text-sm text-gray-600 font-medium">Assistant is thinking...</span>
           </div>
         ) : (
-          <div className={cn('prose prose-sm max-w-none', isUser && 'text-right')}>
+          <div className={cn('prose prose-sm max-w-none min-w-0', isUser && 'text-right')}>
             {isUser ? (
               <p className="whitespace-pre-wrap text-gray-800">{content}</p>
             ) : (
@@ -48,8 +48,8 @@ export function ChatMessage({
                   remarkPlugins={[remarkGfm]}
                   components={{
                     table: ({node, ...props}) => (
-                      <div className="my-4 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-300 border" {...props} />
+                      <div className="my-4 overflow-x-auto max-w-full border rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-300 border-0" {...props} />
                       </div>
                     ),
                     thead: ({node, ...props}) => (
@@ -125,8 +125,8 @@ export function ChatMessage({
             <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
               📊 SQL Query
             </summary>
-            <div className="mt-2 max-h-60 overflow-auto rounded bg-gray-900">
-              <pre className="p-3 text-xs overflow-x-auto whitespace-nowrap">
+            <div className="mt-2 max-h-60 overflow-auto rounded bg-gray-900 border">
+              <pre className="p-3 text-xs overflow-x-auto whitespace-pre">
                 <code className="text-green-400 font-mono">{message.sqlQuery}</code>
               </pre>
             </div>
@@ -139,7 +139,7 @@ export function ChatMessage({
               📋 Query Result ({Array.isArray(message.sqlResult) ? `${message.sqlResult.length} rows` : 'data'})
             </summary>
             <div className="mt-2 max-h-96 overflow-auto rounded bg-gray-50 border">
-              <pre className="p-3 text-xs">
+              <pre className="p-3 text-xs overflow-x-auto">
                 <code className="text-gray-800 font-mono">{String(JSON.stringify(message.sqlResult, null, 2))}</code>
               </pre>
             </div>

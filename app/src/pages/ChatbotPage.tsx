@@ -262,22 +262,29 @@ export default function ChatbotPage() {
   }
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex h-full overflow-hidden max-w-full">
       {/* Chat History Sidebar */}
       {sidebarOpen && (
-        <ChatSidebar
-          conversations={conversations}
-          currentConversationId={currentConversation?.id || null}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewConversation}
-          onRenameConversation={handleRenameConversation}
-          onDeleteConversation={handleDeleteConversation}
-          onPinConversation={handlePinConversation}
-        />
+        <div className="relative">
+          <ChatSidebar
+            conversations={conversations}
+            currentConversationId={currentConversation?.id || null}
+            onSelectConversation={handleSelectConversation}
+            onNewConversation={handleNewConversation}
+            onRenameConversation={handleRenameConversation}
+            onDeleteConversation={handleDeleteConversation}
+            onPinConversation={handlePinConversation}
+          />
+          {/* Mobile overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        </div>
       )}
 
       {/* Main Chat Area */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col min-w-0 max-w-full overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b bg-white px-4 py-3">
           <div className="flex items-center gap-3">
@@ -294,7 +301,7 @@ export default function ChatbotPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-w-0 max-w-full">
           {messages.length === 0 && !isStreaming ? (
             <div className="flex h-full items-center justify-center">
               <div className="text-center">

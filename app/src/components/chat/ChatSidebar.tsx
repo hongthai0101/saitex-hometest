@@ -44,7 +44,7 @@ export function ChatSidebar({
   const regularConversations = (conversations || []).filter((c) => !c.isPinned)
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-gray-50">
+    <div className="flex h-full w-64 flex-col border-r bg-gray-50 shrink-0 z-50 relative">
       {/* Header */}
       <div className="border-b bg-white p-4">
         <button
@@ -76,8 +76,14 @@ export function ChatSidebar({
                 onCancelEdit={() => setEditingId(null)}
                 onToggleMenu={() => setActiveMenu(activeMenu === conv.id ? null : conv.id)}
                 onRename={() => handleRename(conv)}
-                onPin={() => onPinConversation(conv.id)}
-                onDelete={() => onDeleteConversation(conv.id)}
+                onPin={() => {
+                  onPinConversation(conv.id)
+                  setActiveMenu(null)
+                }}
+                onDelete={() => {
+                  onDeleteConversation(conv.id)
+                  setActiveMenu(null)
+                }}
               />
             ))}
           </div>
@@ -101,8 +107,14 @@ export function ChatSidebar({
                 onCancelEdit={() => setEditingId(null)}
                 onToggleMenu={() => setActiveMenu(activeMenu === conv.id ? null : conv.id)}
                 onRename={() => handleRename(conv)}
-                onPin={() => onPinConversation(conv.id)}
-                onDelete={() => onDeleteConversation(conv.id)}
+                onPin={() => {
+                  onPinConversation(conv.id)
+                  setActiveMenu(null)
+                }}
+                onDelete={() => {
+                  onDeleteConversation(conv.id)
+                  setActiveMenu(null)
+                }}
               />
             ))}
           </div>
